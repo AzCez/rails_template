@@ -2,7 +2,7 @@
 #
  Usage:
    rails new CHANGE_THIS_TO_YOUR_RAILS_APP_NAME \
-     -d postgresql --css tailwind -m ./rails_vite_template.rb
+     -d postgresql --css tailwind -m ./https://github.com/AzCez/rails_template/blob/7ee76a4f70e152c119cf67dce832b15a5e318210/rails_vite_template.rb
 
  This template:
  - Adds Devise (User), Simple Form (Tailwind), Pages#home, flashes
