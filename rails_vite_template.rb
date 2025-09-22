@@ -51,7 +51,7 @@ inject_into_file "Gemfile", before: "group :development, :test do" do
     gem "paper_trail"
     gem "sidekiq"
     gem "redis"
-    gem "openai", "~> 5.2"
+    gem "ruby-openai", "~> 5.2"
     gem "aasm"
     gem "acts_as_tenant"
     gem "rack-attack"
