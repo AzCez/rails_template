@@ -8,8 +8,8 @@
 # - Adds Devise (User), Simple Form (Tailwind), Pages#home, flashes
 # - Installs Pundit, PaperTrail, Sidekiq (+ /sidekiq UI), Rack::Attack, Lograge
 # - Sets up Vite + React + TypeScript (with a tiny React mount)
-# - Generates a generic README titled with your app’s name
-# - (NEW) Creates a **private GitHub repo** via GitHub CLI `gh`, sets remote, and pushes
+# - Generates a generic README titled with your app’s name (includes Option A/B usage)
+# - Creates a **private GitHub repo** via GitHub CLI `gh` (if available), sets remote, and pushes
 
 # --- Helpers -----------------------------------------------------------------
 def safe_run(cmd)
@@ -236,55 +236,75 @@ after_bundle do
             "<body>",
             "<body>\n    <div id=\"react-root\"></div>"
 
-  # --- README (generic, uses your app's name) --------------------------------
+  # --- README (generic, uses your app's name; includes Option A & B) ----------
   file "README.md", <<~MD, force: true
     # #{APP_TITLE}
 
-    A Rails 7 application bootstrapped with a custom template that combines **authentication, authorization, background jobs, multi-tenancy, auditing, and modern frontend tooling** — ready to build production features quickly.
+    A Rails 7 application template that bootstraps a modern stack with authentication, authorization, background jobs, auditing, and frontend tooling.
 
     ---
 
-    ## 🚀 Features
+    ## 🚀 Usage
+
+    ### Option A — apply template directly (requires public access)
+
+    ```bash
+    rails new \\
+      -d postgresql \\
+      -c tailwind \\
+      -m https://raw.githubusercontent.com/AzCez/rails_template/main/rails_vite_template.rb \\
+      CHANGE_THIS_TO_YOUR_RAILS_APP_NAME
+    ```
+
+    ### Option B — download then apply locally (works for private repos)
+
+    ```bash
+    curl -fsSL -o rails_vite_template.rb \\
+      https://raw.githubusercontent.com/AzCez/rails_template/7ee76a4f70e152c119cf67dce832b15a5e318210/rails_vite_template.rb
+
+    bin/rails app:template LOCATION=./rails_vite_template.rb
+    ```
+
+    > Tip: If your template repository is private, **Option B** avoids 404 errors from raw.githubusercontent.com.
+
+    ---
+
+    ## ✨ What this template does
 
     - **Authentication & Accounts**
-      - Devise with `User` model
+      - Adds Devise (`User` model)
       - Tailwind-styled Devise views
       - Simple Form with Tailwind wrappers
       - Flash messages (notice/alert)
 
     - **Authorization & Policies**
-      - Pundit for role-based policies
+      - Installs Pundit
       - Default `before_action :authenticate_user!`
 
     - **Background Jobs**
       - Sidekiq + Redis integration
       - Web UI mounted at `/sidekiq` (requires login)
 
-    - **Audit & Versioning**
+    - **Audit & Logging**
       - PaperTrail for record versioning
       - Lograge for structured logging
 
-    - **Security & Rate Limiting**
-      - Rack::Attack for throttling abusive requests
-
-    - **Multi-Tenancy**
-      - ActsAsTenant gem (ready to extend with a Tenant model)
+    - **Security**
+      - Rack::Attack for rate limiting
 
     - **Frontend**
       - TailwindCSS (Rails 7 `--css tailwind`)
       - Vite + React + TypeScript setup
       - Example `App.tsx` mounted at `#react-root`
 
-    - **AI & Utilities**
-      - OpenAI gem (`~> 5.2`)
-      - AASM (state machines)
-      - OJ (fast JSON), mini_racer (JS runtime), json_schemer
+    - **Project setup**
+      - Generates this generic `README.md` titled with your app’s name
+      - Initializes Git and (optionally) a private GitHub repo via `gh` if available
 
     ---
 
-    ## 🛠️ Setup
+    ## 🛠️ Requirements
 
-    ### Requirements
     - Ruby 3.2+
     - Rails 7.1+
     - PostgreSQL 14+
@@ -292,19 +312,17 @@ after_bundle do
     - Node.js 18+ & Yarn/NPM
     - Foreman (`gem install foreman`) for `bin/dev`
 
-    ### Installation
+    ---
+
+    ## 🧪 Getting started
 
     ```bash
-    # If you haven't generated the app yet, use the template:
-    # rails new CHANGE_THIS_TO_YOUR_RAILS_APP_NAME -d postgresql --css tailwind -m ./rails_vite_template.rb
-
     bundle install
-    yarn install    # or npm install
+    yarn install   # or: npm install
     bin/rails db:setup
     ```
 
-    ### Run
-
+    Start dev servers (Rails + Vite):
     ```bash
     bin/dev
     ```
@@ -322,7 +340,7 @@ after_bundle do
     - Registration, login, password recovery
     - Root page (`/`) is public, all others require login
 
-    To create your first user:
+    Create your first user:
 
     ```bash
     bin/rails console
@@ -357,10 +375,21 @@ after_bundle do
 
     ## ✅ Next Steps
 
-    1. Add your own domain models.
+    1. Add your domain models.
     2. Build services/workers for your business logic.
     3. Secure endpoints with Pundit policies.
     4. Deploy with Redis and a Sidekiq worker process.
+
+    ---
+
+    ## 🔗 GitHub repo auto-creation (optional)
+
+    If you have GitHub CLI installed and authenticated, the template can create a **private repo** and push the initial commit automatically.
+
+    ```bash
+    gh auth login
+    export GITHUB_OWNER=your-org-or-username   # optional
+    ```
 
     ---
 
@@ -380,7 +409,7 @@ after_bundle do
 
   # Create a private GitHub repo and push (requires GitHub CLI: https://cli.github.com/)
   repo_name = File.basename(Dir.pwd)
-  owner     = ENV["GITHUB_OWNER"] # optional, e.g. "your-org" or "your-username"
+  owner     = ENV["GITHUB_OWNER"] # optional, e.g., "your-org" or "your-username"
   gh_exists = system("which gh > /dev/null 2>&1")
 
   if gh_exists
