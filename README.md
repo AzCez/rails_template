@@ -1,7 +1,9 @@
 # Rails + Vite/React/TS + devise + pundit
 
  Usage:
- #
+
+#
+
 ```
 rails new \
   -d postgresql \
@@ -10,6 +12,7 @@ rails new \
   CHANGE_THIS_TO_YOUR_RAILS_APP_NAME
 
 ```
+
 
 
  This template:
