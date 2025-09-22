@@ -3,7 +3,9 @@
  Usage:
  #
    rails new 
+   #
      -d postgresql --css tailwind 
+     #
      -m https://github.com/AzCez/rails_template/blob/7ee76a4f70e152c119cf67dce832b15a5e318210/rails_vite_template.rb \
   CHANGE_THIS_TO_YOUR_RAILS_APP_NAME
 
