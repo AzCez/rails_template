@@ -2,12 +2,17 @@
 
  Usage:
 
+#
+
 ```
-rails new CHANGE_THIS_TO_YOUR_RAILS_APP_NAME \
+rails new \
   -d postgresql \
   -c tailwind \
-  -m https://github.com/AzCez/rails_template/blob/7ee76a4f70e152c119cf67dce832b15a5e318210/rails_vite_template.rb
+  -m https://raw.githubusercontent.com/AzCez/rails_template/main/rails_vite_template.rb \
+  CHANGE_THIS_TO_YOUR_RAILS_APP_NAME
+
 ```
+
 
 
  This template:
