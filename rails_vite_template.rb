@@ -9,6 +9,7 @@
 # - Installs Pundit, PaperTrail, Sidekiq (+ /sidekiq UI), Rack::Attack, Lograge
 # - Sets up Vite + React + TypeScript (with a tiny React mount)
 # - Generates a generic README titled with your app’s name
+# - (NEW) Creates a **private GitHub repo** via GitHub CLI `gh`, sets remote, and pushes
 
 # --- Helpers -----------------------------------------------------------------
 def safe_run(cmd)
@@ -25,13 +26,11 @@ def append_once(file, content)
 end
 
 def app_const_name
-  # e.g., "my-awesome_app" -> "MyAwesomeApp"
   base = File.basename(Dir.pwd).gsub(/[^a-zA-Z0-9_]/, "_")
   base.split("_").map { |p| p.capitalize }.join
 end
 
 def app_display_name
-  # e.g., "my-awesome_app" -> "My Awesome App"
   base = File.basename(Dir.pwd).gsub(/[^a-zA-Z0-9_]/, " ")
   base.split(/\s+/).map { |p| p.capitalize }.join(" ")
 end
@@ -354,14 +353,52 @@ after_bundle do
     - **Service objects:** Put business logic in `app/services/`.
     - **Background jobs:** Use `Sidekiq::Worker` classes under `app/workers/`.
 
+    ---
 
+    ## ✅ Next Steps
 
+    1. Add your own domain models.
+    2. Build services/workers for your business logic.
+    3. Secure endpoints with Pundit policies.
+    4. Deploy with Redis and a Sidekiq worker process.
+
+    ---
+
+    ## 📜 License
+
+    MIT — use and adapt for your projects.
+  MD
 
   # --- Rubocop (optional) ----------------------------------------------------
   safe_run "curl -L https://raw.githubusercontent.com/lewagon/rails-templates/master/.rubocop.yml > .rubocop.yml"
 
-  # --- Git -------------------------------------------------------------------
+  # --- Git & GitHub ----------------------------------------------------------
   git :init
-  git add: "."
-  git commit: %Q{-m "Initial commit: #{APP_TITLE} (Rails + Tailwind + Vite/React/TS + Devise + Pundit + Sidekiq + PaperTrail) template"}
+  safe_run "git add ."
+  safe_run %Q{git commit -m "Initial commit: #{APP_TITLE} (Rails + Tailwind + Vite/React/TS + Devise + Pundit + Sidekiq + PaperTrail) template"}
+  safe_run "git branch -M main"
+
+  # Create a private GitHub repo and push (requires GitHub CLI: https://cli.github.com/)
+  repo_name = File.basename(Dir.pwd)
+  owner     = ENV["GITHUB_OWNER"] # optional, e.g. "your-org" or "your-username"
+  gh_exists = system("which gh > /dev/null 2>&1")
+
+  if gh_exists
+    say_status :info, "Creating private GitHub repo via `gh`...", :green
+    if owner && !owner.strip.empty?
+      # Create under specific owner
+      safe_run %Q{gh repo create "#{owner}/#{repo_name}" --private --source=. --remote=origin --push}
+    else
+      # Create under authenticated user
+      safe_run %Q{gh repo create "#{repo_name}" --private --source=. --remote=origin --push}
+    end
+  else
+    say_status :warn, "GitHub CLI not found; skipping auto repo creation. Install gh: https://cli.github.com/", :yellow
+    # If remote not set, print a hint
+    unless `git remote`.include?("origin")
+      say_status :hint, "You can set the remote and push manually:", :blue
+      say_status :hint, "  git remote add origin git@github.com:#{owner ? "#{owner}/" : ""}#{repo_name}.git", :blue
+      say_status :hint, "  git push -u origin main", :blue
+    end
+  end
 end
