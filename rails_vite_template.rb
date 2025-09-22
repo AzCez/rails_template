@@ -204,6 +204,45 @@ after_bundle do
 
   # --- Vite + React + TS -----------------------------------------------------
   rails_command "vite:install"
+
+  entrypoint_js = "app/frontend/entrypoints/application.js"
+  entrypoint_tsx = "app/frontend/entrypoints/application.tsx"
+
+  if File.exist?(entrypoint_js)
+    gsub_file entrypoint_js, /\A[\s\S]*\z/, <<~JS
+      import React from "react";
+      import { createRoot } from "react-dom/client";
+      import App from "../App";
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const el = document.getElementById("react-root");
+        if (el) createRoot(el).render(<App />);
+      });
+    JS
+  elsif File.exist?(entrypoint_tsx)
+    gsub_file entrypoint_tsx, /\A[\s\S]*\z/, <<~TSX
+      import React from "react";
+      import { createRoot } from "react-dom/client";
+      import App from "../App";
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const el = document.getElementById("react-root");
+        if (el) createRoot(el).render(<App />);
+      });
+    TSX
+  else
+    file entrypoint_js, <<~JS
+      import React from "react";
+      import { createRoot } from "react-dom/client";
+      import App from "../App";
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const el = document.getElementById("react-root");
+        if (el) createRoot(el).render(<App />);
+      });
+    JS
+  end
+
   # Initialize TS & React
   safe_run "npm i -D react react-dom @types/react @types/react-dom typescript"
   safe_run "npx tsc --init --jsx react-jsx --esModuleInterop --resolveJsonModule --skipLibCheck"
@@ -216,20 +255,6 @@ after_bundle do
       return <div className="p-6 text-xl font-semibold">Hello from React + Vite + Tailwind</div>;
     }
   TSX
-
-  # Hook React into application layout (simple mount)
-  append_once "app/javascript/application.js", <<~JS
-
-    // Mount React app (simple example)
-    import React from "react";
-    import { createRoot } from "react-dom/client";
-    import App from "../../frontend/App";
-
-    document.addEventListener("DOMContentLoaded", () => {
-      const el = document.getElementById("react-root");
-      if (el) createRoot(el).render(<App />);
-    });
-  JS
 
   # Inject mount node into layout body
   gsub_file "app/views/layouts/application.html.erb",
